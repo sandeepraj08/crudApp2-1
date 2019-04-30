@@ -1,18 +1,16 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE_NAME = "dineshp4/crudapp"
+        DOCKER_IMAGE_NAME = "sandeep08/crudapp"
         CANARY_REPLICAS = 0
     }
     tools {
-     //   jdk 'Java'
-        maven 'maven'
+        maven 'Maven'
     }
         stages {
             stage('Build') {
                 steps {
-                    slackSend channel: '#devops', color: '#FFFF00',  message: 'Stage Build started', tokenCredentialId: 'slack_token'
-		    withSonarQubeEnv('My SonarQube Server'){
+		    withSonarQubeEnv('My SonarQube server'){
                     sh 'mvn -Dmaven.test.failure.ignore=true clean package'
                     //sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore clean package"
                     }
@@ -20,8 +18,7 @@ pipeline {
             }
             stage ('Upload to Nexus') {
                 steps {
-                    slackSend channel: '#devops', color: '#FFFF00',  message: 'Stage upload to Nexus started', tokenCredentialId: 'slack_token'
-                    nexusArtifactUploader artifacts: [[artifactId: 'crudApp', classifier: '', file: 'target/crudApp.war', type: 'war']], credentialsId: 'nexus', groupId: 'maven-Central', nexusUrl: '$NEXUS_IP', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-releases', version: '1.${BUILD_NUMBER}'
+                    nexusArtifactUploader artifacts: [[artifactId: 'crudApp', classifier: '', file: 'target/crudApp.war', type: 'war']], credentialsId: 'nexus', groupId: 'Central', nexusUrl: '$NEXUS_IP', nexusVersion: 'nexus2', protocol: 'http', repository: 'releases', version: '1.${BUILD_NUMBER}'
                 }
             }
             stage ('Docker Build') {
@@ -29,7 +26,7 @@ pipeline {
                     branch 'master'
                 }
                 steps {
-                    sh 'wget http://$NEXUS_IP/repository/maven-releases/maven-Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
+                    sh 'wget http://$NEXUS_IP/service/local/repositories/releases/content/Central/crudApp/1.${BUILD_NUMBER}/crudApp-1.${BUILD_NUMBER}.war -O crudApp.war'
                     script {
                         app = docker.build(DOCKER_IMAGE_NAME)
                     }
@@ -37,9 +34,6 @@ pipeline {
                 }
             }
            stage ('Docker Push Image') {
-               when {
-                    branch 'master'
-                }
                 steps{
                     script {
                         docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {

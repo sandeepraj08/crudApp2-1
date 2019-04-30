@@ -90,12 +90,4 @@ pipeline {
                 }
             }
         }
-        post {
-  success {
-    slackSend channel: '#devops', color: '#008000',  message: 'Build Success', tokenCredentialId: 'slack_token'
-  }
-  failure {
-    slackSend channel: '#devops', color: '#FF0000',  message: 'Build failure', tokenCredentialId: 'slack_token'
-  }
-}
 }

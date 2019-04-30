@@ -10,10 +10,10 @@ pipeline {
         stages {
             stage('Build') {
                 steps {
-		    withSonarQubeEnv('My SonarQube server'){
+		    
                     sh 'mvn -Dmaven.test.failure.ignore=true clean package'
                     //sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore clean package"
-                    }
+                    
 		}
             }
             stage ('Upload to Nexus') {

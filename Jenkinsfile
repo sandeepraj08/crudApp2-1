@@ -5,7 +5,7 @@ pipeline {
         CANARY_REPLICAS = 0
     }
     tools {
-        maven 'Maven'
+        maven 'maven'
     }
         stages {
             stage('Build') {
